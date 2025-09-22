@@ -108,12 +108,12 @@ jobs:
 
       - name: Authenticate Railway CLI
         run: |
-          echo "$RAILWAY_TOKEN" | railway login --ci
+          railway login --token $RAILWAY_TOKEN
 
       - name: Deploy to Railway
         run: |
           echo "Deploying project $RAILWAY_PROJECT_ID..."
-          railway up --service online-poll-web --detach --ci
+          railway up --service online-poll-web --detach
 
       - name: Verify Railway Deployment
         run: |
