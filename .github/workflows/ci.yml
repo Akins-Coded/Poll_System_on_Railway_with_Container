@@ -64,6 +64,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -77,6 +79,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
           tags: your-dockerhub-username/online_poll_system:latest
 
@@ -104,4 +107,4 @@ jobs:
         run: railway login --token ${{ secrets.RAILWAY_TOKEN }}
 
       - name: Deploy to Railway
-        run: railway up --service online-poll-web --detach
+        run: railway up --service online-poll-web --project ${{ secrets.RAILWAY_PROJECT_ID }} --detach
