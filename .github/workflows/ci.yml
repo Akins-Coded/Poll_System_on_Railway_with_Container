@@ -106,14 +106,16 @@ jobs:
       - name: Install Railway CLI
         run: curl -fsSL https://railway.app/install.sh | sh
 
-      - name: Authenticate Railway CLI
+      - name: Set Railway Token
         run: |
-          railway login --token $RAILWAY_TOKEN
+          echo "Railway token is set via environment variable"
 
       - name: Deploy to Railway
         run: |
           echo "Deploying project $RAILWAY_PROJECT_ID..."
           railway up --service online-poll-web --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
       - name: Verify Railway Deployment
         run: |
@@ -125,3 +127,5 @@ jobs:
             exit 1
           fi
           echo "✅ Deployment is running!"
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
