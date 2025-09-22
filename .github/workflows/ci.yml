@@ -91,9 +91,12 @@ jobs:
   # --------------------------
   # Deployment (Railway CLI)
   # --------------------------
+  # --------------------------
+# Deployment (Railway CLI)
+# --------------------------
   deploy:
     runs-on: ubuntu-latest
-    needs: docker   # only run if Docker image was built & pushed
+    needs: docker
 
     steps:
       - name: Checkout code
@@ -106,4 +109,20 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
-        run: railway up --service online-poll-web --detach
+        run: |
+          echo "🔑 Using Railway Project: $RAILWAY_PROJECT_ID"
+          railway up --service online-poll-web --detach --ci
+
+      - name: Verify Railway Deployment
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+        run: |
+          echo "🔍 Checking deployment status..."
+          STATUS=$(railway status --service online-poll-web --json | jq -r '.services[0].status')
+          echo "Service status: $STATUS"
+          if [ "$STATUS" != "running" ]; then
+            echo "❌ Deployment failed!"
+            exit 1
+          fi
+          echo "✅ Deployment is running!"
