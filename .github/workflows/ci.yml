@@ -87,7 +87,6 @@ jobs:
         if: always()
         run: |
           docker system prune -af
-          rm -rf ${{ github.workspace }}
 
   # --------------------------
   # Deployment (Railway CLI)
