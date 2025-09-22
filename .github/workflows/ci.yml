@@ -91,32 +91,30 @@ jobs:
   # --------------------------
   # Deployment (Railway CLI)
   # --------------------------
-  # --------------------------
-# Deployment (Railway CLI)
-# --------------------------
+
   deploy:
     runs-on: ubuntu-latest
     needs: docker
+    env:                    # <-- set token/project for all steps in this job
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Install Railway CLI
         run: curl -fsSL https://railway.app/install.sh | sh
 
       - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
         run: |
           echo "🔑 Using Railway Project: $RAILWAY_PROJECT_ID"
           railway up --service online-poll-web --detach --ci
 
       - name: Verify Railway Deployment
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
         run: |
           echo "🔍 Checking deployment status..."
           STATUS=$(railway status --service online-poll-web --json | jq -r '.services[0].status')
