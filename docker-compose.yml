@@ -4,32 +4,26 @@ services:
   db:
     image: postgres:15
     container_name: online_poll_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: online_poll_system
+    restart: always
+    env_file:
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   web:
-    image: your-dockerhub-username/online_poll_system:latest
+    build: .
     container_name: online_poll_web
-    command: >
-      sh -c "gunicorn online_poll_system.wsgi:application 
-             --bind 0.0.0.0:8000 
-             --workers=4 
-             --threads=4 
-             --timeout=120"
-    ports:
-      - "8000:8000"
-    environment:
-      DEBUG: "1"
-      DJANGO_SETTINGS_MODULE: online_poll_system.settings
-      DATABASE_URL: postgres://postgres:postgres@db:5432/online_poll_system
+    restart: always
+    env_file:
+      - .env
     depends_on:
       - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
 
 volumes:
   postgres_data:

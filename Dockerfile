@@ -1,54 +1,37 @@
 # --------------------------
-# Base image (lightweight Python)
+# Base image
 # --------------------------
 FROM python:3.12-slim AS base
 
-# --------------------------
-# Environment settings
-# --------------------------
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PIP_DEFAULT_TIMEOUT=100
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# --------------------------
-# Set working directory
-# --------------------------
 WORKDIR /app
 
 # --------------------------
-# Install system dependencies (Postgres + build tools)
+# System dependencies
 # --------------------------
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
-    gcc \
+RUN apt-get update && apt-get install -y \
+    libpq-dev gcc curl netcat-traditional \
     && rm -rf /var/lib/apt/lists/*
 
 # --------------------------
-# Install Python dependencies (use cache layers)
+# Install Python dependencies
 # --------------------------
 COPY requirements.txt .
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # --------------------------
-# Copy project files
+# Copy project
 # --------------------------
 COPY . .
 
 # --------------------------
-# Collect static files for Django
+# Entrypoint for migrations, collectstatic & gunicorn
 # --------------------------
-RUN python manage.py collectstatic --noinput || echo "⚠️ collectstatic skipped"
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-# --------------------------
-# Expose port (Railway sets $PORT automatically)
-# --------------------------
-EXPOSE 8000
-
-# --------------------------
-# Run Gunicorn as production server
-# --------------------------
-CMD ["sh", "-c", "gunicorn online_poll_system.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers=4 --threads=4 --timeout=120"]
+ENTRYPOINT ["/app/entrypoint.sh"]
