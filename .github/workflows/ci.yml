@@ -81,7 +81,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: your-dockerhub-username/online_poll_system:latest
+          tags: akinscoded/online_poll_system:latest
 
       - name: Cleanup workspace
         if: always()
