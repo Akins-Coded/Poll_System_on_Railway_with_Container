@@ -55,7 +55,7 @@ jobs:
           python manage.py test
 
   # --------------------------
-  # Build & Push Docker Image (multi-tags from commit message)
+  # Build & Push Docker Image (Render pulls from Docker Hub)
   # --------------------------
   docker:
     runs-on: ubuntu-latest
