@@ -55,7 +55,7 @@ jobs:
           python manage.py test
 
   # --------------------------
-  # Build & Push Docker Image
+  # Build & Push Docker Image (with cache)
   # --------------------------
   docker:
     runs-on: ubuntu-latest
@@ -76,12 +76,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image with cache
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: akinscoded/online_poll_system:latest
+          cache-from: type=registry,ref=akinscoded/online_poll_system:latest
+          cache-to: type=registry,ref=akinscoded/online_poll_system:latest,mode=max
 
       - name: Cleanup workspace
         if: always()
